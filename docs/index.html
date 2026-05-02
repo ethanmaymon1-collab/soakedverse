@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soakedverse</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0b0f;
+      background-image: url('images/bg.png');
+      background-size: cover;
+      background-attachment: fixed;
+      background-position: center;
+      color: white;
+    }
+
+    header {
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 3rem;
+      letter-spacing: 2px;
+      font-family: 'Impact', 'Arial Black', sans-serif;
+      font-style: italic;
+      background: linear-gradient(90deg, #00ff00, #9d00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 4px rgba(157, 0, 255, 0.3));
+      text-shadow: 
+        0 10px 0 rgba(0, 255, 0, 0.3),
+        0 20px 0 rgba(157, 0, 255, 0.2),
+        0 30px 5px rgba(0, 255, 0, 0.15),
+        0 40px 10px rgba(157, 0, 255, 0.1),
+        5px 15px 0 rgba(0, 255, 0, 0.2),
+        -5px 15px 0 rgba(157, 0, 255, 0.2),
+        8px 28px 0 rgba(0, 255, 0, 0.1),
+        -8px 28px 0 rgba(157, 0, 255, 0.1);
+      transform: scaleY(1.1);
+      font-weight: 900;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .cover {
+      width: 100%;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .reader {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .reader img {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .reader.active {
+      display: block;
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 20px;
+      cursor: pointer;
+      background: purple;
+      padding: 5px 10px;
+    }
+
+    .creator-button {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #ffffff, #2e0249);
+      border: none;
+      color: #111;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .creator-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+    }
+
+    .soundtrack-section {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: rgba(10, 10, 20, 0.88);
+      border: 2px solid rgb(56, 15, 56);
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    .soundtrack-section h2 {
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    .track-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .track-button {
+      background: linear-gradient(135deg, #ffffff, #341846);
+      border: none;
+      color: #111;
+      padding: 12px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s ease;
+    }
+
+    .track-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .track-player {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+      display: block;
+      border-radius: 12px;
+      outline: none;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .creator-popup {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .creator-popup.active {
+      display: flex;
+    }
+
+    .popup-content {
+      background: rgba(15, 15, 20, 0.95);
+      border: 2px solid purple;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 720px;
+      width: 100%;
+      color: white;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .creator-image {
+      width: 100%;
+      border-radius: 16px;
+      margin: 20px 0;
+      object-fit: contain;
+      max-height: calc(100vh - 260px);
+    }
+
+    .comment-center {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: rgba(15, 15, 20, 0.8);
+      border-radius: 20px;
+      border: 2px solid rgb(44, 17, 58);
+    }
+
+    .comment-center h2 {
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .comment-center p {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ccc;
+    }
+
+    #commentForm {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    #fanName {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgb(255, 255, 255);
+      background: #1a1a1a;
+      color: white;
+      font-size: 16px;
+    }
+
+    #commentText {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgb(255, 255, 255);
+      background: #1a1a1a;
+      color: white;
+      font-size: 16px;
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    #commentForm button {
+      padding: 12px;
+      background: linear-gradient(135deg, #230929, #290d31);
+      border: none;
+      color: #e2e2e2;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    #commentForm button:hover {
+      transform: translateY(-2px);
+    }
+
+    .comment {
+      background: rgba(30, 30, 40, 0.8);
+      border: 1px solid #632f81;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+
+    .comment .fan-name {
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+
+    .comment .timestamp {
+      font-size: 12px;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="images/saokedverse.png" alt="SOAKEDVERSE" style="max-width: 900px; height: auto;">
+  <button class="creator-button" onclick="openCreatorPopup()">Meet the Creator</button>
+</header>
+
+<div class="soundtrack-section">
+  <h2>Soundtracks</h2>
+  <div class="track-list">
+    <button type="button" class="track-button" onclick="selectTrack('audio/The_Bitter_Debt.mp3', 'Soakedverse Theme')">The Bitter Debt</button>
+    <button type="button" class="track-button" onclick="selectTrack('audio/The_House_Must_Fall.mp4', 'Night Waves')">The House Must Fall</button>
+    <button type="button" class="track-button" onclick="selectTrack('audio/Slot_Machine_Grave.mp3', 'Haunted Alley')">Slot Machine Grave</button>
+    <button type="button" class="track-button" onclick="selectTrack('audio/Sever_the_Link.mp3', 'Darkwater Drift')">Sever the Link</button>
+    <button type="button" class="track-button" onclick="selectTrack('audio/Break_The_Frame.mp3', 'Neon Drowned')">Break The Frame</button>
+  </div>
+  <audio id="trackPlayer" class="track-player" controls preload="none">
+    <source src="audio/track1.mp3" type="audio/mpeg">
+    Your browser does not support audio playback.
+  </audio>
+</div>
+
+<div id="creatorPopup" class="creator-popup">
+  <div class="popup-content">
+    <span class="popup-close" onclick="closeCreatorPopup()">×</span>
+    <h2>Meet the Creator</h2>
+    <img src="images/image.jpg" alt="Creator" class="creator-image">
+    <p>Hi, I'm the creator behind Soakedverse. Welcome to my world of comics!</p>
+  </div>
+</div>
+
+<div class="container">
+  <h2>Issue #1</h2>
+  <img src="images/cover.jpg.jpeg" class="cover" onclick="openReader(1)">
+
+  <h2>Issue #2</h2>
+  <img src="images/c2.png" class="cover" onclick="openReader(2)">
+
+  <h2>Issue #3</h2>
+  <img src="images/c3.png" class="cover" onclick="openReader(3)">
+
+  <h2>Issue #4</h2>
+  <img src="images/c4.png" class="cover" onclick="openReader(4)">
+
+  <h2>Issue #5...COMING SOON</h2>
+ 
+</div>
+
+<!-- COMMENT CENTER -->
+<div class="comment-center">
+  <h2>Comment Center</h2>
+  <p>Share your thoughts and suggestions! Choose your fan name below.</p>
+  
+  <form id="commentForm">
+    <select id="fanName" required>
+      <option value="">Select your fan name</option>
+      <option value="WATERFAN">WATERFAN</option>
+      <option value="TRYSTONSFAN">TRYSTONSFAN</option>
+      <option value="SOAKEDFAN">SOAKEDFAN</option>
+      <option value="PAMELIFAN">PAMELIFAN</option>
+      <option value="WESPURYYFAN">WESPURYYFAN</option>
+      <option value="FEMBOYSFAN">FEMBOYSFAN</option>
+    </select>
+    <textarea id="commentText" placeholder="Write your comment here..." required></textarea>
+    <button type="submit">Post Comment</button>
+  </form>
+  
+  <div id="commentsList"></div>
+</div>
+
+<!-- READERS -->
+<div class="reader" id="reader1">
+  <div class="close-btn" onclick="closeReader(1)">X</div>
+  <img src="images/IMG_9477.jpeg">
+</div>
+
+<div class="reader" id="reader2">
+  <div class="close-btn" onclick="closeReader(2)">X</div>
+  <img src="images/i2.png">
+</div>
+
+<div class="reader" id="reader3">
+  <div class="close-btn" onclick="closeReader(3)">X</div>
+  <img src="images/i3.png">
+</div>
+
+<div class="reader" id="reader4">
+  <div class="close-btn" onclick="closeReader(4)">X</div>
+  <img src="images/i4.png">
+</div>
+
+<div class="reader" id="reader5">
+  <div class="close-btn" onclick="closeReader(5)">X</div>
+  <img src="images/issue5-page1.jpg">
+</div>
+
+<script>
+  function openReader(issueNum) {
+    document.getElementById('reader' + issueNum).classList.add('active');
+  }
+
+  function closeReader(issueNum) {
+    document.getElementById('reader' + issueNum).classList.remove('active');
+  }
+
+  function openCreatorPopup() {
+    document.getElementById('creatorPopup').classList.add('active');
+  }
+
+  function closeCreatorPopup() {
+    document.getElementById('creatorPopup').classList.remove('active');
+  }
+
+  function selectTrack(src, title) {
+    const player = document.getElementById('trackPlayer');
+    const source = player.querySelector('source');
+    source.src = src;
+    player.load();
+    player.play().catch(() => {
+      // Autoplay may be blocked; user can manually press play.
+    });
+    player.setAttribute('title', title);
+  }
+
+  // Comment functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    loadComments();
+    
+    document.getElementById('commentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const fanName = document.getElementById('fanName').value;
+      const commentText = document.getElementById('commentText').value;
+      
+      if (fanName && commentText.trim()) {
+        const comment = {
+          fanName: fanName,
+          text: commentText.trim(),
+          timestamp: new Date().toLocaleString()
+        };
+        
+        saveComment(comment);
+        displayComment(comment);
+        
+        // Reset form
+        document.getElementById('commentForm').reset();
+      }
+    });
+  });
+
+  function saveComment(comment) {
+    const comments = JSON.parse(localStorage.getItem('soakedverseComments') || '[]');
+    comments.push(comment);
+    localStorage.setItem('soakedverseComments', JSON.stringify(comments));
+  }
+
+  function loadComments() {
+    const comments = JSON.parse(localStorage.getItem('soakedverseComments') || '[]');
+    comments.forEach(displayComment);
+  }
+
+  function displayComment(comment) {
+    const commentsList = document.getElementById('commentsList');
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'comment';
+    commentDiv.innerHTML = `
+      <div class="fan-name">${comment.fanName}</div>
+      <div class="timestamp">${comment.timestamp}</div>
+      <div>${comment.text}</div>
+    `;
+    commentsList.appendChild(commentDiv);
+  }
+</script>
+
+</body>
+</html>
